@@ -71,6 +71,7 @@ export const addLink = function (start, end, type, linktext) {
   if (typeof linktext !== 'undefined') {
     edge.text = linktext.trim()
 
+    // TODO: this should be a function
     // strip quotes if string starts and exnds with a quote
     if (edge.text[0] === '"' && edge.text[edge.text.length - 1] === '"') {
       edge.text = edge.text.substring(1, edge.text.length - 1)
