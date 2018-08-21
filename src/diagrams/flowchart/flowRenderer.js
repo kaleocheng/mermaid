@@ -38,7 +38,6 @@ export const addVertices = function (vert, g) {
   // Iterate through each item in the vertice object (containing all the vertices found) in the graph definition
   keys.forEach(function (id) {
     const vertice = vert[id]
-    let verticeText
 
     /**
      * Variable for storing the classes for the vertice
@@ -58,11 +57,7 @@ export const addVertices = function (vert, g) {
     style = styleFromStyleArr(style, vertice.styles)
 
     // Use vertice id as text in the box if no text is provided by the graph definition
-    if (typeof vertice.text === 'undefined') {
-      verticeText = vertice.id
-    } else {
-      verticeText = vertice.text
-    }
+    let verticeText = (typeof vertice.text === 'undefined') ? vertice.id : vertice.text
 
     let labelTypeStr = ''
     if (conf.htmlLabels) {
