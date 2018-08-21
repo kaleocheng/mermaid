@@ -42,12 +42,11 @@ export const addVertex = function (id, text, type, style) {
 
     vertices[id].text = txt
   }
+
   if (typeof type !== 'undefined') {
     vertices[id].type = type
   }
-  if (typeof type !== 'undefined') {
-    vertices[id].type = type
-  }
+
   if (typeof style !== 'undefined') {
     if (style !== null) {
       style.forEach(function (s) {
