@@ -259,7 +259,7 @@ export const draw = function (text, id) {
   subGraphs.slice().reverse().map(subGraph => flowDb.addVertex(subGraph.id, subGraph.title, 'group', undefined))
   subGraphs.slice().reverse().forEach(subGraph => {
     d3.selectAll('cluster').append('text')
-    subGraph.nodes.map(node => g.setParent(node), subGraph.id)
+    subGraph.nodes.map(node => g.setParent(node, subGraph.id))
   })
 
   // Fetch the verices/nodes and edges/links from the parsed graph definition
