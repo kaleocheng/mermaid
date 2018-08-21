@@ -260,28 +260,19 @@ export const draw = function (text, id) {
       return {}
     })
 
-  let subG
   const subGraphs = flowDb.getSubGraphs()
-  for (let i = subGraphs.length - 1; i >= 0; i--) {
-    subG = subGraphs[i]
-    flowDb.addVertex(subG.id, subG.title, 'group', undefined)
-  }
+  subGraphs.slice().reverse().map(subGraph => flowDb.addVertex(subGraph.id, subGraph.title, 'group', undefined))
 
   // Fetch the verices/nodes and edges/links from the parsed graph definition
   const vert = flowDb.getVertices()
 
   const edges = flowDb.getEdges()
 
-  let i = 0
-  for (i = subGraphs.length - 1; i >= 0; i--) {
-    subG = subGraphs[i]
-
+  subGraphs.slice().reverse().forEach(subGraph => {
     d3.selectAll('cluster').append('text')
+    subGraph.nodes.map(node => g.setParent(node), subGraph.id)
+  })
 
-    for (let j = 0; j < subG.nodes.length; j++) {
-      g.setParent(subG.nodes[j], subG.id)
-    }
-  }
   addVertices(vert, g)
   addEdges(edges, g)
 
@@ -414,11 +405,9 @@ export const draw = function (text, id) {
   svg.select('g').attr('transform', `translate(${padding - g.minX}, ${padding - g.minY})`)
 
   // Index nodes
-  flowDb.indexNodes('subGraph' + i)
+  flowDb.indexNodes()
 
-  for (i = 0; i < subGraphs.length; i++) {
-    subG = subGraphs[i]
-
+  subGraphs.map(subG => {
     if (subG.title !== 'undefined') {
       const clusterRects = document.querySelectorAll('#' + id + ' #' + subG.id + ' rect')
       const clusterEl = document.querySelectorAll('#' + id + ' #' + subG.id)
@@ -441,7 +430,7 @@ export const draw = function (text, id) {
         te.text(subG.title)
       }
     }
-  }
+  })
 
   // Add label rects for non html labels
   if (!conf.htmlLabels) {
