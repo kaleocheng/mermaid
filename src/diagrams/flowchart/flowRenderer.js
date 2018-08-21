@@ -262,19 +262,14 @@ export const draw = function (text, id) {
 
   const subGraphs = flowDb.getSubGraphs()
   subGraphs.slice().reverse().map(subGraph => flowDb.addVertex(subGraph.id, subGraph.title, 'group', undefined))
-
-  // Fetch the verices/nodes and edges/links from the parsed graph definition
-  const vert = flowDb.getVertices()
-
-  const edges = flowDb.getEdges()
-
   subGraphs.slice().reverse().forEach(subGraph => {
     d3.selectAll('cluster').append('text')
     subGraph.nodes.map(node => g.setParent(node), subGraph.id)
   })
 
-  addVertices(vert, g)
-  addEdges(edges, g)
+  // Fetch the verices/nodes and edges/links from the parsed graph definition
+  addVertices(flowDb.getVertices(), g)
+  addEdges(flowDb.getEdges(), g)
 
   // Create the renderer
   const Render = dagreD3.render
