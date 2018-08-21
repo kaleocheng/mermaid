@@ -255,6 +255,7 @@ export const draw = function (text, id) {
       return {}
     })
 
+  // TODO: Maybe this should be moved to parser
   const subGraphs = flowDb.getSubGraphs()
   subGraphs.slice().reverse().map(subGraph => flowDb.addVertex(subGraph.id, subGraph.title, 'group', undefined))
   subGraphs.slice().reverse().forEach(subGraph => {
