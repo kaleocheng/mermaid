@@ -6,6 +6,8 @@ import flow from './parser/flow'
 import dagreD3 from 'dagre-d3-renderer'
 import { logger } from '../../logger'
 import { interpolateToCurve } from '../../utils'
+import dagre from 'dagre-layout'
+import rough from 'roughjs'
 
 const conf = {
 }
@@ -266,6 +268,105 @@ export const draw = function (text, id) {
   // Fetch the verices/nodes and edges/links from the parsed graph definition
   addVertices(flowDb.getVertices(), g)
   addEdges(flowDb.getEdges(), g)
+
+  dagre.layout(g)
+
+  const documentSVG = document.getElementById('svg')
+  const rc = rough.svg(documentSVG)
+
+  // const rc = rough.canvas(document.getElementById('canvas'))
+  // const canvas = document.getElementById('canvas')
+  // const ctx = canvas.getContext('2d')
+
+  function createLabel (text) {
+    let label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    label.setAttributeNS(null, 'font-size', 50)
+    label.setAttributeNS(null, 'font-family', '\'Annie Use Your Telescope\', cursive')
+    label.setAttributeNS(null, 'background', 'rgb(204, 204, 204)')
+    label.appendChild(document.createTextNode(text))
+    return label
+  }
+
+  g.nodes()
+    .map(n => g.node(n))
+    .map(n => {
+      let label = createLabel(n.label)
+      documentSVG.appendChild(label)
+      n.width = label.getBBox().width
+      n.height = label.getBBox().height
+      documentSVG.removeChild(documentSVG.lastChild)
+      return n
+    })
+
+  dagre.layout(g)
+
+  g.nodes()
+    .map(n => g.node(n))
+    .forEach(n => {
+      documentSVG.appendChild(rc.rectangle(n.x, n.y, n.width, n.height, {
+        fill: 'red',
+        hachureAngle: 60,
+        hachureGap: 15,
+        fillWeight: 5,
+        strokeWidth: 5
+      }))
+      let label = createLabel(n.label)
+      label.setAttributeNS(null, 'x', n.x)
+      label.setAttributeNS(null, 'y', n.y + n.height / 2)
+      documentSVG.appendChild(label)
+    })
+
+  g.nodes()
+    .forEach(n => {
+      g.outEdges(n)
+        .map(e => g.edge(e))
+        .forEach(e => {
+          e.points[0].x += g.node(n).width / 2
+          e.points[0].y += g.node(n).height / 2
+        })
+      g.inEdges(n)
+        .map(e => g.edge(e))
+        .forEach(e => {
+          e.points[2].x += g.node(n).width / 2
+          e.points[2].y += g.node(n).height / 2
+        })
+    })
+
+  g.edges()
+    .map(e => g.edge(e))
+    .forEach(e => {
+      documentSVG.appendChild(rc.line(e.points[0].x, e.points[0].y, e.points[2].x, e.points[2].y))
+    })
+
+  g.edges().forEach(n => console.log(g.edge(n)))
+
+  // const hello = g.node('sid-B3655226-6C29-4D00-B685-3D5C734DC7E1')
+  //
+  // const label = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+  // label.setAttributeNS(null, 'id', 'label')
+  // label.setAttributeNS(null, 'font-size', 50)
+  // label.setAttributeNS(null, 'font-family', '\'Cedarville Cursive\', cursive')
+  // let labelText = document.createTextNode(hello.label)
+  // label.appendChild(labelText)
+  // svge.appendChild(label)
+  // hello.width = label.getBBox().width
+  // hello.height = label.getBBox().height
+  //
+  // label.setAttributeNS(null, 'x', hello.x)
+  // label.setAttributeNS(null, 'y', hello.y + hello.height / 2)
+  // console.log(hello)
+  // svge.appendChild(rc.rectangle(hello.x, hello.y, hello.width, hello.height,{
+  //   fill: 'red',
+  //   hachureAngle: 60,
+  //   hachureGap: 15,
+  //   fillWeight: 5,
+  //   strokeWidth: 5
+  // }))
+  // svge.appendChild(label)
+
+  // ctx.font = '30px Arial'
+  // ctx.textAlign = 'center'
+  // ctx.fillText(hello.label, hello.x + 200, hello.y + 100)
 
   // Create the renderer
   const Render = dagreD3.render
